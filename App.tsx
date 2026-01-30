@@ -11,23 +11,29 @@ const App: React.FC = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (window.google && window.google.script) {
-            window.google.script.run
-                .withSuccessHandler((userRole: Role) => {
-                    setRole(userRole);
-                    setLoading(false);
-                })
-                .withFailureHandler((err: any) => {
-                    console.error("Auth check failed", err);
-                    setRole('student'); // Default to student on error
-                    setLoading(false);
-                })
-                .getUserRole();
-        } else {
-            // Dev mode fallback
-            setRole('teacher'); // Default to teacher in dev for easy testing
-            setLoading(false);
-        }
+        const checkAuth = () => {
+            if (window.google && window.google.script) {
+                window.google.script.run
+                    .withSuccessHandler((userRole: Role) => {
+                        setRole(userRole);
+                        setLoading(false);
+                    })
+                    .withFailureHandler((err: any) => {
+                        console.error("Auth check failed", err);
+                        setRole('student'); // Default to student on error
+                        setLoading(false);
+                    })
+                    .getUserRole();
+            } else {
+                // Dev mode fallback
+                setRole('teacher'); // Default to teacher in dev for easy testing
+                setLoading(false);
+            }
+        };
+
+        // Add a small delay to ensure Google Apps Script API is fully initialized
+        const timer = setTimeout(checkAuth, 500);
+        return () => clearTimeout(timer);
     }, []);
 
     if (loading) {

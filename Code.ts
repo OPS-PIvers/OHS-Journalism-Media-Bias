@@ -1,36 +1,3 @@
-declare namespace GoogleAppsScript {
-  namespace Events {
-    interface DoGet {
-      queryString: string;
-      parameter: { [key: string]: string };
-      parameters: { [key: string]: string[] };
-      contentLength: number;
-    }
-  }
-  namespace HTML {
-    interface HtmlOutput {
-      setTitle(title: string): HtmlOutput;
-      addMetaTag(name: string, content: string): HtmlOutput;
-      setXFrameOptionsMode(mode: XFrameOptionsMode): HtmlOutput;
-    }
-    interface HtmlTemplate {
-      evaluate(): HtmlOutput;
-    }
-    enum XFrameOptionsMode {
-      ALLOWALL,
-      DEFAULT
-    }
-  }
-}
-
-declare var HtmlService: {
-  createTemplateFromFile(filename: string): GoogleAppsScript.HTML.HtmlTemplate;
-  XFrameOptionsMode: typeof GoogleAppsScript.HTML.XFrameOptionsMode;
-};
-
-declare var SpreadsheetApp: any;
-declare var Session: any;
-
 /**
  * Serves the HTML template for the web app.
  * @param e The event parameter for the GET request.
@@ -41,6 +8,10 @@ function doGet(e: GoogleAppsScript.Events.DoGet): GoogleAppsScript.HTML.HtmlOutp
     .setTitle('The Weekly Scout')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1.0')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+function include(filename: string) {
+  return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
 
 // --- Auth Layer ---
