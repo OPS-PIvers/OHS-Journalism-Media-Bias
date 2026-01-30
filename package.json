@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "deploy": "clasp push"
+    "deploy": "clasp push && clasp deploy -i AKfycbxYnYucDntl-MeqdjqjLlUPgabhpljpBQKg6K69ZQXzmYLEszMOsc_3wtwQPrPioeV_mA"
   },
   "devDependencies": {
     "@types/google-apps-script": "^1.0.83"

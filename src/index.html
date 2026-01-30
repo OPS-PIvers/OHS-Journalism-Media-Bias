@@ -3,32 +3,49 @@
   <head>
     <base target="_top">
     <?!= include('stylesheet'); ?>
+    <?!= include('javascript'); ?>
   </head>
   <body class="h-screen flex flex-col md:flex-row overflow-hidden">
+  
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-6 right-6 z-[120] flex flex-col gap-3 pointer-events-none"></div>
+  
+    <!-- Global Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-gray-950 z-[100] flex flex-col items-center justify-center transition-opacity duration-300">
+      <div class="flex flex-col items-center gap-4">
+        <span class="material-symbols-outlined text-5xl animate-spin text-blue-500">donut_large</span>
+        <p class="font-display font-medium text-sm text-gray-400 tracking-widest uppercase">Syncing Newsroom Data...</p>
+      </div>
+    </div>
   
     <!-- Navigation Sidebar -->
     <nav class="w-full md:w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
       <div class="p-6">
         <h1 class="text-xl font-bold tracking-wider text-blue-400">THE WEEKLY SCOUT</h1>
-        <div class="mt-2 text-xs font-mono text-gray-500">OP: <?!= userRole.toUpperCase() ?></div>
+        <div class="mt-2 text-xs font-mono text-gray-500">ROLE: <?!= userRole.toUpperCase() ?></div>
       </div>
       
       <div class="flex-1 px-4 space-y-2">
-        <button onclick="navigateTo('dashboard')" class="w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors <? if(activePage == 'dashboard') { ?> bg-blue-600/20 text-blue-400 <? } else { ?> text-gray-400 hover:bg-gray-800 <? } ?>">
+        <a href="<?= scriptUrl ?>?page=dashboard" onclick="showLoading()" target="_top" class="block w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors <? if(activePage == 'dashboard') { ?> bg-blue-600/20 text-blue-400 <? } else { ?> text-gray-400 hover:bg-gray-800 <? } ?>">
           <span class="material-symbols-outlined">dashboard</span>
           Dashboard
-        </button>
+        </a>
         
-        <button onclick="navigateTo('submission')" class="w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors <? if(activePage == 'submission') { ?> bg-blue-600/20 text-blue-400 <? } else { ?> text-gray-400 hover:bg-gray-800 <? } ?>">
+        <a href="<?= scriptUrl ?>?page=submission" onclick="showLoading()" target="_top" class="block w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors <? if(activePage == 'submission') { ?> bg-blue-600/20 text-blue-400 <? } else { ?> text-gray-400 hover:bg-gray-800 <? } ?>">
           <span class="material-symbols-outlined">send</span>
           New Report
-        </button>
+        </a>
         
         <? if (userRole === 'teacher') { ?>
-        <button onclick="navigateTo('teacher')" class="w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors <? if(activePage == 'teacher') { ?> bg-purple-600/20 text-purple-400 <? } else { ?> text-gray-400 hover:bg-gray-800 <? } ?>">
+        <a href="<?= scriptUrl ?>?page=roster" onclick="showLoading()" target="_top" class="block w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors <? if(activePage == 'roster') { ?> bg-blue-600/20 text-blue-400 <? } else { ?> text-gray-400 hover:bg-gray-800 <? } ?>">
+          <span class="material-symbols-outlined">group</span>
+          Editorial Roster
+        </a>
+
+        <a href="<?= scriptUrl ?>?page=teacher" onclick="showLoading()" target="_top" class="block w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors <? if(activePage == 'teacher') { ?> bg-purple-600/20 text-purple-400 <? } else { ?> text-gray-400 hover:bg-gray-800 <? } ?>">
           <span class="material-symbols-outlined">school</span>
-          Teacher Console
-        </button>
+          Editor Console
+        </a>
         <? } ?>
       </div>
     </nav>
@@ -38,19 +55,24 @@
       <!-- Dynamic View Loading -->
       <? 
         if (activePage === 'dashboard') { 
-          // We can call server-side functions here to get data before rendering
-          var reports = getRecentReports();
+          var dashboardData = getRecentReports();
+          var chartData = getChartData();
       ?>
-        <?!= include('views/dashboard'); ?>
+        <?!= renderView('views/dashboard', {reports: dashboardData.reports, stats: dashboardData.stats, chartData: chartData}); ?>
       <? } else if (activePage === 'submission') { ?>
-        <?!= include('views/submission'); ?>
-      <? } else if (activePage === 'teacher') { ?>
-        <?!= include('views/teacher'); ?>
+        <?!= renderView('views/submission'); ?>
+      <? } else if (activePage === 'roster') { 
+          var students = getRosterData();
+      ?>
+        <?!= renderView('views/roster', {students: students}); ?>
+      <? } else if (activePage === 'teacher') { 
+          var teacherData = getTeacherData();
+          var pendingSubmissions = getPendingSubmissions();
+      ?>
+        <?!= renderView('views/teacher', {teacherData: teacherData, pending: pendingSubmissions}); ?>
       <? } else { ?>
         <div class="text-center text-gray-500 mt-20">Page not found.</div>
       <? } ?>
     </main>
-
-    <?!= include('javascript'); ?>
   </body>
 </html>

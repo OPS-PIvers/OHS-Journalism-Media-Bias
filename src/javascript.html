@@ -1,15 +1,132 @@
 <script>
   // Global client-side navigation and logic
   
+  window.onload = function() {
+    hideLoading();
+  };
+
+  function showLoading() {
+    var loader = document.getElementById('loadingOverlay');
+    if (loader) {
+      loader.classList.remove('opacity-0', 'pointer-events-none');
+      loader.style.display = 'flex';
+    }
+  }
+
+  function hideLoading() {
+    var loader = document.getElementById('loadingOverlay');
+    if (loader) {
+      loader.classList.add('opacity-0', 'pointer-events-none');
+      setTimeout(function() {
+        if (loader.classList.contains('opacity-0')) {
+          loader.style.display = 'none';
+        }
+      }, 300);
+    }
+  }
+
   function navigateTo(page) {
-    var url = getScriptUrl() + "?page=" + page;
-    window.top.location.href = url;
+    showLoading();
+    window.top.location.href = "<?!= scriptUrl ?>?page=" + page;
   }
   
+  function topReload() {
+    showLoading();
+    window.top.location.href = "<?!= scriptUrl ?>?page=<?!= activePage ?>";
+  }
+
   function getScriptUrl() {
-    var url = document.createElement('a');
-    url.href = window.location.href;
-    return url.href.split('?')[0];
+    return "<?!= scriptUrl ?>";
+  }
+
+  // --- Toast Notification System ---
+
+  function showToast(message, type = 'success') {
+    var container = document.getElementById('toastContainer');
+    if (!container) return;
+
+    var toast = document.createElement('div');
+    var bgColor = type === 'success' ? 'bg-green-600' : 'bg-red-600';
+    var icon = type === 'success' ? 'check_circle' : 'error';
+    
+    toast.className = `pointer-events-auto flex items-center gap-3 px-6 py-4 rounded-xl text-white shadow-2xl ${bgColor} toast-enter`;
+    toast.innerHTML = `
+      <span class="material-symbols-outlined">${icon}</span>
+      <p class="font-bold text-sm tracking-tight">${message}</p>
+    `;
+
+    container.appendChild(toast);
+
+    // Trigger entrance animation
+    setTimeout(() => {
+      toast.classList.replace('toast-enter', 'toast-enter-active');
+    }, 10);
+
+    // Remove after 5 seconds
+    setTimeout(() => {
+      if (!toast.parentNode) return;
+      toast.classList.replace('toast-enter-active', 'toast-exit');
+      setTimeout(() => {
+        if (toast.parentNode) toast.remove();
+      }, 300);
+    }, 5000);
+  }
+
+  // --- Interactive Chart Logic ---
+
+  function initInteractiveChart(containerId, callback, initialX = 0, initialY = 32) {
+    var container = document.getElementById(containerId);
+    if (!container) return;
+
+    function handleClick(e) {
+      var rect = container.getBoundingClientRect();
+      var px = e.clientX - rect.left;
+      var py = e.clientY - rect.top;
+      
+      // Map pixels to Data Units
+      // X: 0 to width -> -42 to 42
+      var x = Math.round(((px / rect.width) * 84) - 42);
+      // Y: 0 to height -> 64 to 0 (Inverted because top is 64 factual)
+      var y = Math.round(64 - ((py / rect.height) * 64));
+      
+      callback(x, y);
+      updateMarker(container, x, y);
+    }
+
+    container.onclick = handleClick;
+    // Initial Position
+    updateMarker(container, initialX, initialY);
+  }
+
+  function updateMarker(container, x, y, type = 'student') {
+    var marker = container.querySelector('.plot-point-' + type) || document.createElement('div');
+    marker.className = 'plot-point plot-point-' + type + (type === 'student' ? ' point-student' : ' point-teacher');
+    
+    // Reverse Map Data to %
+    var left = ((x + 42) / 84) * 100;
+    var top = (1 - (y / 64)) * 100;
+    
+    marker.style.left = left + '%';
+    marker.style.top = top + '%';
+    
+    if (!marker.parentNode) container.appendChild(marker);
+  }
+
+  function calculateAccuracyXP(sX, sY, tX, tY) {
+    var dist = Math.sqrt(Math.pow(sX - tX, 2) + Math.pow(sY - tY, 2));
+    
+    if (dist < 8) return 4; // Bullseye / Very Close
+    
+    // Check Quadrant (Signs match)
+    var sQuadX = sX >= 0 ? 1 : -1;
+    var sQuadY = sY >= 32 ? 1 : -1; // Reliability midpoint is 32
+    var tQuadX = tX >= 0 ? 1 : -1;
+    var tQuadY = tY >= 32 ? 1 : -1;
+    
+    if (sQuadX === tQuadX && sQuadY === tQuadY) return 2; // Same Quadrant
+    if (sQuadX === tQuadX) return 1; // Same Half (Left/Right)
+    
+    return 0; // Opposite / Inaccurate
   }
 
   // --- Form Handling ---
@@ -18,35 +135,93 @@
     e.preventDefault();
     var btn = document.getElementById('submitBtn');
     var originalText = btn.innerText;
-    btn.disabled = true;
-    btn.innerText = "Transmitting...";
     
-    var formData = {
-      url: document.getElementById('url').value,
-      sourceName: document.getElementById('sourceName').value,
-      author: document.getElementById('author').value,
-      bias: document.getElementById('bias').value,
-      reliability: document.getElementById('reliability').value,
-      evidence: document.getElementById('evidence').value,
-      wordCount: document.getElementById('evidence').value.split(/\s+/).length
-    };
+    var fileInput = document.getElementById('imageInput');
+    var file = fileInput.files[0];
     
-    google.script.run
-      .withSuccessHandler(function(response) {
-        btn.disabled = false;
-        btn.innerText = originalText;
-        if (response.success) {
-          alert("Success! XP Earned: " + response.xpEarned);
-          navigateTo('dashboard');
-        } else {
-          alert("Error: " + response.message);
-        }
-      })
-      .withFailureHandler(function(err) {
-        btn.disabled = false;
-        btn.innerText = originalText;
-        alert("System Failure: " + err);
-      })
-      .submitReport(formData);
+    if (file) {
+      var reader = new FileReader();
+      reader.onload = function(event) {
+        processSubmission({
+          image: event.target.result,
+          imageName: file.name,
+          imageType: file.type
+        });
+      };
+      reader.readAsDataURL(file);
+    } else {
+      processSubmission({});
+    }
+
+    function processSubmission(imageUpdate) {
+      btn.disabled = true;
+      btn.innerText = "Transmitting Intelligence...";
+      showLoading();
+      
+      var formData = {
+        url: document.getElementById('url').value,
+        sourceName: document.getElementById('sourceName').value,
+        author: document.getElementById('author').value,
+        bias: document.getElementById('biasInput').value,
+        reliability: document.getElementById('reliabilityInput').value,
+        evidence: document.getElementById('evidence').value,
+        wordCount: document.getElementById('evidence').value.split(/\s+/).length
+      };
+      
+      // Merge image data
+      Object.assign(formData, imageUpdate);
+      
+      google.script.run
+        .withSuccessHandler(function(response) {
+          btn.disabled = false;
+          btn.innerText = originalText;
+          hideLoading(); // Release the loader before showing the toast
+          if (response.success) {
+            showToast("Analysis Logged. Pending Verification.", 'success');
+            setTimeout(() => navigateTo('dashboard'), 1500);
+          } else {
+            showToast("Transmission Error: " + response.message, 'error');
+          }
+        })
+        .withFailureHandler(function(err) {
+          btn.disabled = false;
+          btn.innerText = originalText;
+          hideLoading(); // Release loader on error
+          showToast("System Failure: " + err, 'error');
+        })
+        .submitReport(formData);
+    }
+  }
+
+
+  // --- Visual Chart & Modal ---
+
+  function openReportModal(data) {
+    var modal = document.getElementById('reportModal');
+    document.getElementById('modalSourceName').innerText = data.sourceName;
+    document.getElementById('modalAuthor').innerText = data.author;
+    document.getElementById('modalReporter').innerText = data.student;
+    document.getElementById('modalTimestamp').innerText = new Date(data.timestamp).toLocaleDateString();
+    document.getElementById('modalEvidence').innerText = data.evidence;
+    document.getElementById('modalUrl').href = data.url;
+    
+    // Numbers + Labels
+    document.getElementById('modalBias').innerText = data.verifiedBias || data.bias;
+    document.getElementById('modalBiasLabel').innerText = data.biasLabel;
+    document.getElementById('modalReliability').innerText = data.verifiedReliability || data.reliability;
+    document.getElementById('modalReliabilityLabel').innerText = data.reliabilityLabel;
+    
+    if (data.imageId) {
+      document.getElementById('modalImage').src = "https://lh3.googleusercontent.com/d/" + data.imageId;
+      document.getElementById('modalImageContainer').classList.remove('hidden');
+    } else {
+      document.getElementById('modalImageContainer').classList.add('hidden');
+    }
+    
+    modal.classList.remove('hidden');
+  }
+
+  function closeReportModal() {
+    document.getElementById('reportModal').classList.add('hidden');
   }
 </script>

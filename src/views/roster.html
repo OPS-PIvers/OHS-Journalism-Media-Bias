@@ -1,0 +1,87 @@
+<!-- Roster Management View -->
+<div class="max-w-4xl mx-auto">
+  <header class="mb-8 flex justify-between items-end">
+    <div>
+      <h2 class="text-3xl font-bold text-white mb-2">Editorial Roster</h2>
+      <p class="text-gray-400">Manage reporters and their accumulated XP.</p>
+    </div>
+    <button onclick="document.getElementById('addStudentModal').classList.remove('hidden')" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2">
+      <span class="material-symbols-outlined">person_add</span>
+      Add Reporter
+    </button>
+  </header>
+
+  <div class="glass-panel rounded-xl overflow-hidden">
+    <table class="w-full text-left">
+      <thead class="bg-gray-800/50 text-gray-400 text-xs uppercase tracking-wider">
+        <tr>
+          <th class="px-6 py-4">Reporter Name</th>
+          <th class="px-6 py-4">Rank</th>
+          <th class="px-6 py-4 text-center">Submissions</th>
+          <th class="px-6 py-4 text-right">Journalism XP</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-800 text-sm">
+        <? if (students.length === 0) { ?>
+          <tr><td colspan="4" class="px-6 py-10 text-center text-gray-500">No reporters currently on the roster.</td></tr>
+        <? } else { ?>
+          <? for (var i = 0; i < students.length; i++) { var s = students[i]; ?>
+            <tr class="hover:bg-white/5 transition-colors">
+              <td class="px-6 py-4 font-medium text-white"><?= s.firstName ?> <?= s.lastName ?></td>
+              <td class="px-6 py-4">
+                <span class="text-xs bg-yellow-900/30 text-yellow-400 px-2 py-1 rounded font-mono uppercase border border-yellow-900/50">
+                  <?= s.rankTitle ?>
+                </span>
+              </td>
+              <td class="px-6 py-4 text-center text-gray-300"><?= s.reports ?></td>
+              <td class="px-6 py-4 text-right text-green-400 font-bold"><?= s.xp ?></td>
+            </tr>
+          <? } ?>
+        <? } ?>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Add Student Modal (Updated for First/Last Name) -->
+  <div id="addStudentModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div class="bg-gray-900 border border-gray-700 p-8 rounded-2xl w-full max-w-md shadow-2xl">
+      <h3 class="text-xl font-bold mb-6">Add New Reporter</h3>
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs text-gray-500 mb-1 uppercase">First Name</label>
+            <input type="text" id="newStudentFirst" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:border-blue-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1 uppercase">Last Name</label>
+            <input type="text" id="newStudentLast" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:border-blue-500 outline-none">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1 uppercase">Email Address</label>
+          <input type="email" id="newStudentEmail" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 text-white focus:border-blue-500 outline-none">
+        </div>
+        <div class="flex gap-3 pt-4">
+          <button onclick="document.getElementById('addStudentModal').classList.add('hidden')" class="flex-1 bg-gray-800 hover:bg-gray-700 py-3 rounded-xl font-bold">CANCEL</button>
+          <button onclick="submitNewReporter()" class="flex-1 bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold">AUTHORIZE</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function submitNewReporter() {
+    var firstName = document.getElementById('newStudentFirst').value;
+    var lastName = document.getElementById('newStudentLast').value;
+    var email = document.getElementById('newStudentEmail').value;
+    if (!firstName || !lastName || !email) return showToast("All fields required.", 'error');
+    
+    google.script.run
+      .withSuccessHandler(function() {
+        showToast("Reporter Authorized Successfully.", 'success');
+        setTimeout(() => topReload(), 1500);
+      })
+      .addStudentToRoster(email, firstName, lastName);
+  }
+</script>

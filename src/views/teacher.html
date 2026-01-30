@@ -1,38 +1,218 @@
 <!-- Teacher Console -->
-<div class="max-w-6xl mx-auto">
+<div class="max-w-6xl mx-auto space-y-8">
   <header class="mb-8 border-b border-gray-800 pb-6">
-    <h2 class="text-3xl font-bold text-white mb-2">Command Center</h2>
-    <p class="text-purple-400">Restricted Access: Instructor Clearance Only</p>
+    <h2 class="text-3xl font-bold text-white mb-2">Editor-in-Chief Console</h2>
+    <p class="text-purple-400">Classroom Newsroom Management</p>
   </header>
+
+  <!-- Pending Review Section -->
+  <div class="glass-panel rounded-xl overflow-hidden border border-purple-500/30">
+    <div class="px-6 py-4 border-b border-gray-700 bg-purple-900/20">
+      <h3 class="font-bold text-purple-300 flex items-center gap-2">
+        <span class="material-symbols-outlined">rate_review</span>
+        Pending Editorial Review
+      </h3>
+    </div>
+    <div class="divide-y divide-gray-800">
+      <? if (pending.length === 0) { ?>
+        <div class="p-8 text-center text-gray-500">No pending reports for review.</div>
+      <? } else { ?>
+        <? for (var i = 0; i < pending.length; i++) { var p = pending[i]; ?>
+          <div class="p-4 flex flex-col xl:flex-row justify-between gap-6 hover:bg-white/5 transition-colors">
+            <!-- Left: Student Intel -->
+            <div class="space-y-3 flex-1 text-sm">
+              <div class="flex items-center gap-2">
+                <span class="text-[9px] font-mono bg-blue-900/30 text-blue-400 px-1.5 py-0.5 rounded uppercase">REF #<?= p.row ?></span>
+                <span class="text-[10px] text-gray-500"><?= new Date(p.timestamp).toLocaleDateString() ?></span>
+              </div>
+              
+              <div class="flex gap-4 items-start">
+                <? if (p.imageId) { ?>
+                  <img src="https://lh3.googleusercontent.com/d/<?= p.imageId ?>" class="w-20 h-14 object-cover rounded-lg border border-gray-700 flex-shrink-0">
+                <? } ?>
+                <div>
+                  <h4 class="text-lg font-bold text-white leading-tight"><?= p.sourceName ?></h4>
+                  <p class="text-xs text-gray-500">Reporter: <span class="text-blue-400"><?= p.student ?></span></p>
+                </div>
+              </div>
+              
+              <div class="bg-black/30 p-3 rounded-lg border border-gray-800 text-xs text-gray-300 italic leading-relaxed">
+                "<?= p.evidence ?>"
+              </div>
+            </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div class="bg-blue-900/10 p-3 rounded-lg border border-blue-900/30">
+                  <div class="text-[10px] text-gray-500 uppercase font-bold">Student Bias</div>
+                  <div class="text-lg font-mono text-blue-400"><?= p.bias ?></div>
+                </div>
+                <div class="bg-green-900/10 p-3 rounded-lg border border-green-900/30">
+                  <div class="text-[10px] text-gray-500 uppercase font-bold">Student Reliability</div>
+                  <div class="text-lg font-mono text-green-400"><?= p.reliability ?></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Teacher Verification -->
+            <div class="xl:w-[300px] bg-gray-900/50 p-4 rounded-2xl border border-gray-800 space-y-4">
+              <h5 class="text-[10px] font-bold text-purple-400 flex items-center gap-2 tracking-widest uppercase">
+                <span class="material-symbols-outlined text-sm">verified</span> EDITOR VERIFICATION
+              </h5>
+
+              <!-- Verified Blind Chart -->
+              <div id="verifyChart_<?= p.row ?>" class="coordinate-plane w-full aspect-square rounded-xl relative">
+                <div class="coordinate-grid"></div>
+                <div class="axis-center-h"></div>
+                <div class="axis-center-v"></div>
+                
+                <div class="axis-label top-1.5 left-1/2 -translate-x-1/2">Reliable</div>
+                <div class="axis-label bottom-1.5 left-1/2 -translate-x-1/2">Fabricated</div>
+                <div class="axis-label left-1.5 top-1/2 -translate-y-1/2 -rotate-90">Left</div>
+                <div class="axis-label right-1.5 top-1/2 -translate-y-1/2 rotate-90">Right</div>
+
+                <!-- Blind Mask Overlay -->
+                <div id="blindMask_<?= p.row ?>" class="absolute inset-0 bg-purple-950/20 backdrop-blur-[2px] flex items-center justify-center text-center p-4 z-40 pointer-events-none transition-opacity duration-500">
+                  <div class="bg-gray-900/80 px-3 py-1.5 rounded-lg border border-purple-500/30 text-[8px] font-bold text-purple-300 uppercase tracking-widest leading-tight">
+                    Click to Verify<br>and Reveal
+                  </div>
+                </div>
+              </div>
+
+              <input type="hidden" id="v_bias_<?= p.row ?>" value="<?= p.bias ?>">
+              <input type="hidden" id="v_rel_<?= p.row ?>" value="<?= p.reliability ?>">
+
+              <div id="accuracyReport_<?= p.row ?>" class="hidden animate-in fade-in slide-in-from-top-1 duration-500">
+                <div class="flex justify-between items-center bg-black/40 p-2 rounded-lg border border-white/5 mb-2">
+                  <div class="text-[8px] uppercase font-bold text-gray-500 tracking-tighter">Accuracy</div>
+                  <div id="accuracyLabel_<?= p.row ?>" class="text-[10px] font-bold text-green-400">EXCELLENT</div>
+                </div>
+              </div>
+
+              <div class="pt-3 border-t border-gray-800 flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                  <label class="text-[10px] text-gray-500 font-bold uppercase tracking-tighter">XP:</label>
+                  <input type="number" id="xp_override_<?= p.row ?>" value="<?= p.xp ?>" 
+                    class="w-12 bg-gray-800 border border-gray-700 rounded p-1 text-center font-bold text-yellow-400 text-xs focus:border-blue-500 outline-none">
+                </div>
+                
+                <div class="flex gap-2">
+                  <button onclick="reviewSubmission(<?= p.row ?>, 'Approved')" class="flex-1 bg-green-600 hover:bg-green-500 text-white py-2 rounded-xl font-bold transition-all active:scale-95 flex items-center justify-center gap-2 text-xs">
+                    PUBLISH
+                  </button>
+                  <button onclick="reviewSubmission(<?= p.row ?>, 'Rejected')" class="bg-gray-800 hover:bg-red-900/50 text-gray-400 hover:text-red-200 px-3 rounded-xl transition-all active:scale-95 border border-gray-700">
+                    <span class="material-symbols-outlined text-sm">close</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <script>
+            (function() {
+              var sX = <?= p.bias ?>;
+              var sY = <?= p.reliability ?>;
+              var baseXP = <?= p.xp ?>; // This is (XP_BASE + Depth) calculated during submission
+
+              initInteractiveChart('verifyChart_<?= p.row ?>', function(tx, ty) {
+                // 1. Set values
+                document.getElementById('v_bias_<?= p.row ?>').value = tx;
+                document.getElementById('v_rel_<?= p.row ?>').value = ty;
+                
+                // 2. Clear mask
+                document.getElementById('blindMask_<?= p.row ?>').classList.add('opacity-0');
+                
+                // 3. Show student's original pick
+                updateMarker(document.getElementById('verifyChart_<?= p.row ?>'), sX, sY, 'student');
+                // Place teacher's pick
+                updateMarker(document.getElementById('verifyChart_<?= p.row ?>'), tx, ty, 'teacher');
+
+                // 4. Calculate Accuracy
+                var accuracyBonus = calculateAccuracyXP(sX, sY, tx, ty);
+                var finalXP = baseXP + accuracyBonus;
+                
+                document.getElementById('xp_override_<?= p.row ?>').value = finalXP;
+                document.getElementById('accuracyReport_<?= p.row ?>').classList.remove('hidden');
+                
+                var label = "INACCURATE";
+                if (accuracyBonus === 4) label = "EXCELLENT MATCH (+4)";
+                else if (accuracyBonus === 2) label = "SAME QUADRANT (+2)";
+                else if (accuracyBonus === 1) label = "SAME SIDE (+1)";
+                
+                document.getElementById('accuracyLabel_<?= p.row ?>').innerText = label;
+                document.getElementById('accuracyLabel_<?= p.row ?>').className = 'text-xs font-bold ' + (accuracyBonus >= 2 ? 'text-green-400' : 'text-yellow-400');
+              }, 0, 32); // Start teacher marker at center
+            })();
+          </script>
+        <? } ?>
+      <? } ?>
+    </div>
+  </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
     <!-- Class Overview -->
     <div class="glass-panel p-6 rounded-xl">
-      <h3 class="font-bold text-lg mb-4">Class Performance</h3>
-      <div class="h-64 flex items-center justify-center bg-gray-900/50 rounded-lg">
-        <span class="text-gray-600 font-mono">[ Placeholder: Bias Distribution Chart ]</span>
+      <h3 class="font-bold text-lg mb-4">Newsroom Performance</h3>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-gray-800/50 p-4 rounded-lg">
+          <div class="text-gray-400 text-sm">Approved Articles</div>
+          <div class="text-2xl font-bold text-white"><?= teacherData.totalReports ?></div>
+        </div>
+        <div class="bg-gray-800/50 p-4 rounded-lg">
+          <div class="text-gray-400 text-sm">Avg Reliability</div>
+          <div class="text-2xl font-bold text-green-400"><?= teacherData.avgReliability ?></div>
+        </div>
+        <div class="bg-gray-800/50 p-4 rounded-lg col-span-2">
+          <div class="text-gray-400 text-sm">Total Newsroom XP</div>
+          <div class="text-2xl font-bold text-purple-400"><?= teacherData.totalXP ?></div>
+        </div>
       </div>
     </div>
 
     <!-- Student Roster -->
     <div class="glass-panel p-6 rounded-xl">
-      <h3 class="font-bold text-lg mb-4">Active Agents</h3>
+      <h3 class="font-bold text-lg mb-4">Top Reporters</h3>
       <ul class="space-y-3">
-        <li class="flex justify-between items-center p-3 bg-gray-800/30 rounded-lg">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold">A</div>
-            <span>Alex Chen</span>
-          </div>
-          <span class="text-sm font-mono text-green-400">920 XP</span>
-        </li>
-        <li class="flex justify-between items-center p-3 bg-gray-800/30 rounded-lg">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold">S</div>
-            <span>Sarah Jones</span>
-          </div>
-          <span class="text-sm font-mono text-green-400">850 XP</span>
-        </li>
+        <? if (teacherData.students.length === 0) { ?>
+          <li class="text-gray-500 text-center py-4">No active reporters found.</li>
+        <? } else { ?>
+          <? for (var i = 0; i < teacherData.students.length; i++) { var s = teacherData.students[i]; ?>
+            <li class="flex justify-between items-center p-3 bg-gray-800/30 rounded-lg hover:bg-gray-800/50 transition-colors">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold">
+                  <?= s.name.charAt(0).toUpperCase() ?>
+                </div>
+                <div>
+                  <div class="font-medium text-gray-200"><?= s.name ?></div>
+                  <div class="text-xs text-gray-500"><?= s.reports ?> Analysis Reports</div>
+                </div>
+              </div>
+              <span class="text-sm font-mono text-green-400"><?= s.xp ?> XP</span>
+            </li>
+          <? } ?>
+        <? } ?>
       </ul>
     </div>
   </div>
 </div>
+
+<script>
+  function reviewSubmission(row, status) {
+    if (!confirm("Are you sure you want to " + status.toLowerCase() + " this report?")) return;
+    
+    var xpOverride = null;
+    var teacherBias = null;
+    var teacherReliability = null;
+    
+    if (status === 'Approved') {
+      xpOverride = document.getElementById('xp_override_' + row).value;
+      teacherBias = document.getElementById('v_bias_' + row).value;
+      teacherReliability = document.getElementById('v_rel_' + row).value;
+    }
+    
+    google.script.run
+      .withSuccessHandler(function() {
+        topReload();
+      })
+      .updateSubmissionStatus(row, status, xpOverride, teacherBias, teacherReliability);
+  }
+</script>

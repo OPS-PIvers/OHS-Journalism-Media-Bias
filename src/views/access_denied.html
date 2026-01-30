@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;900&display=swap" rel="stylesheet"/>
+    <style>
+      body { font-family: 'Lexend', sans-serif; background-color: #030712; color: white; }
+    </style>
+  </head>
+  <body class="h-screen flex items-center justify-center p-6">
+    <div class="max-w-md w-full bg-gray-900 border border-red-900/50 p-8 rounded-2xl text-center space-y-6 shadow-2xl">
+      <div class="w-20 h-20 bg-red-900/20 rounded-full flex items-center justify-center mx-auto">
+        <span class="material-symbols-outlined text-red-500 text-4xl">block</span>
+      </div>
+      <h1 class="text-2xl font-bold text-white uppercase tracking-widest">Access Denied</h1>
+      <p class="text-gray-400">
+        Your credentials are not listed in the <span class="text-blue-400 font-bold">Editorial Roster</span>. 
+        Please contact the Editor-in-Chief to request press clearance.
+      </p>
+      <div class="text-xs font-mono text-gray-600 border-t border-gray-800 pt-4">
+        ID: <?= Session.getActiveUser().getEmail() ?>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,57 +1,195 @@
-<!-- Dashboard View -->
-<div class="max-w-6xl mx-auto space-y-8">
-  <header class="flex justify-between items-end">
-    <div>
-      <h2 class="text-3xl font-bold text-white mb-2">Mission Status</h2>
-      <p class="text-gray-400">Recent intelligence reports from the field.</p>
+  <!-- Data Registry for Modals -->
+  <script>
+    var dashboardReports = <?!= JSON.stringify(reports) ?>;
+    var chartReports = <?!= JSON.stringify(chartData) ?>;
+  </script>
+
+  <!-- Editorial Landscape Chart -->
+  <section class="glass-panel rounded-2xl p-8 border border-white/5">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h3 class="text-xl font-bold text-white tracking-tight">Editorial Landscape</h3>
+        <p class="text-sm text-gray-500">Global source distribution based on verified newsroom intelligence.</p>
+      </div>
+      <div class="flex gap-4 text-[10px] uppercase font-bold tracking-widest text-gray-600">
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Bias</div>
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span> Reliability</div>
+      </div>
     </div>
-    <div class="glass-panel px-4 py-2 rounded-lg flex items-center gap-2">
-      <span class="material-symbols-outlined text-yellow-400">military_tech</span>
-      <span class="font-mono text-xl font-bold">LVL 4</span>
+
+    <!-- The Chart -->
+    <div class="relative w-full aspect-square md:aspect-video bg-gray-900/50 rounded-xl border border-gray-800 overflow-hidden">
+      <!-- Axis Labels -->
+      <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
+        <div class="w-px h-full bg-gray-500"></div>
+        <div class="h-px w-full bg-gray-500"></div>
+      </div>
+      
+      <div class="absolute top-4 left-1/2 -translate-x-1/2 text-[10px] text-gray-600 font-bold uppercase tracking-tighter">Factual / Reliable</div>
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-[10px] text-gray-600 font-bold uppercase tracking-tighter">Fabricated / Low Quality</div>
+      <div class="absolute left-4 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] text-gray-600 font-bold uppercase tracking-tighter">Extreme Left</div>
+      <div class="absolute right-4 top-1/2 -translate-y-1/2 rotate-90 text-[10px] text-gray-600 font-bold uppercase tracking-tighter">Extreme Right</div>
+
+      <!-- Data Points (Images) -->
+      <div id="chartPoints" class="absolute inset-0">
+        <? for (var i = 0; i < chartData.length; i++) { var d = chartData[i]; 
+           var x = ((d.bias + 42) / 84) * 100;
+           var y = 100 - ((d.reliability / 64) * 100);
+        ?>
+          <button 
+            onclick="openReportModal(chartReports[<?= i ?>])"
+            class="absolute -translate-x-1/2 -translate-y-1/2 group transition-transform hover:scale-125 z-10 hover:z-20"
+            style="left: <?= x ?>%; top: <?= y ?>%;"
+          >
+            <div class="w-8 h-8 md:w-12 md:h-12 rounded-lg border-2 border-white/20 overflow-hidden shadow-lg shadow-black/50 bg-gray-800">
+              <? if (d.imageId) { ?>
+                <img src="https://lh3.googleusercontent.com/d/<?= d.imageId ?>" class="w-full h-full object-cover">
+              <? } else { ?>
+                <div class="w-full h-full flex items-center justify-center text-[8px] font-bold text-gray-500 uppercase"><?= d.sourceName.substring(0,2) ?></div>
+              <? } ?>
+            </div>
+            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-blue-600 text-white text-[10px] font-bold rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+              <?= d.sourceName ?>
+            </div>
+          </button>
+        <? } ?>
+      </div>
     </div>
-  </header>
+  </section>
 
   <!-- Stats Grid -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
     <div class="glass-panel p-6 rounded-xl border-l-4 border-blue-500">
-      <div class="text-gray-400 text-sm mb-1">Total Reports</div>
-      <div class="text-3xl font-bold">12</div>
+      <div class="text-gray-400 text-sm mb-1">Articles Analyzed</div>
+      <div class="text-3xl font-bold text-white"><?= stats.total ?></div>
     </div>
     <div class="glass-panel p-6 rounded-xl border-l-4 border-green-500">
-      <div class="text-gray-400 text-sm mb-1">Avg Reliability</div>
-      <div class="text-3xl font-bold">8.4</div>
+      <div class="text-gray-400 text-sm mb-1">Avg Reliability Score</div>
+      <div class="text-3xl font-bold text-white"><?= stats.avgReliability ?></div>
     </div>
     <div class="glass-panel p-6 rounded-xl border-l-4 border-purple-500">
-      <div class="text-gray-400 text-sm mb-1">XP Earned</div>
-      <div class="text-3xl font-bold">850</div>
+      <div class="text-gray-400 text-sm mb-1">Journalism XP</div>
+      <div class="text-3xl font-bold text-white"><?= stats.totalXp ?></div>
     </div>
   </div>
 
   <!-- Recent Submissions List -->
   <div class="glass-panel rounded-xl overflow-hidden">
-    <div class="px-6 py-4 border-b border-gray-700 bg-gray-800/50">
-      <h3 class="font-bold">Recent Transmissions</h3>
+    <div class="px-6 py-4 border-b border-gray-700 bg-gray-800/50 flex justify-between items-center">
+      <h3 class="font-bold">Recent Newsroom Activity</h3>
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+        <span class="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Live Feed</span>
+      </div>
     </div>
-    <div class="divide-y divide-gray-700">
+    
+    <div class="carousel-container">
       <? if (reports.length === 0) { ?>
-        <div class="p-8 text-center text-gray-500">No reports found. Start your mission!</div>
-      <? } else { ?>
-        <? for (var i = 0; i < reports.length; i++) { var r = reports[i]; ?>
-          <div class="p-4 hover:bg-white/5 transition-colors flex items-center justify-between group">
-            <div>
-              <div class="font-bold text-blue-400"><?= r.sourceName ?></div>
-              <div class="text-sm text-gray-400">By <?= r.author ?> • <?= new Date(r.timestamp).toLocaleDateString() ?></div>
-            </div>
-            <div class="flex items-center gap-4">
-              <div class="text-right hidden md:block">
-                <div class="text-xs text-gray-500">BIAS</div>
-                <div class="font-mono <?= Math.abs(r.bias) < 5 ? 'text-green-400' : 'text-yellow-400' ?>"><?= r.bias ?></div>
+        <div class="p-12 text-center text-gray-500 w-full">No reports found. Start analyzing!</div>
+      <? } else { 
+           // Only animate if we have more than 3 items to justify a carousel
+           var shouldAnimate = reports.length > 3;
+           var displayList = shouldAnimate ? reports.concat(reports) : reports;
+      ?>
+        <div class="carousel-track <?= shouldAnimate ? 'animate' : '' ?>">
+          <? for (var i = 0; i < displayList.length; i++) { var r = displayList[i]; ?>
+            <div class="carousel-card group cursor-pointer" onclick='openReportModal(dashboardReports[<?= i % reports.length ?>])'>
+              <div class="flex flex-col h-full gap-4">
+                <div class="flex justify-between items-start">
+                  <div class="w-12 h-12 rounded-lg bg-gray-800 border border-gray-700 overflow-hidden flex-shrink-0 shadow-inner">
+                    <? if (r.imageId) { ?>
+                      <img src="https://lh3.googleusercontent.com/d/<?= r.imageId ?>" class="w-full h-full object-cover">
+                    <? } else { ?>
+                      <div class="w-full h-full flex items-center justify-center text-[10px] font-bold text-gray-600 italic">N/A</div>
+                    <? } ?>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-[9px] text-gray-500 uppercase font-bold tracking-tighter">Verified Bias</div>
+                    <div class="text-[10px] font-mono font-bold <?= Math.abs(r.verifiedBias || r.bias) < 5 ? 'text-green-400' : 'text-yellow-400' ?>">
+                      <?= r.verifiedBias || r.bias ?>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex-1">
+                  <h4 class="font-bold text-blue-400 leading-tight mb-1 group-hover:text-blue-300 transition-colors line-clamp-1"><?= r.sourceName ?></h4>
+                  <p class="text-[10px] text-gray-400 line-clamp-1">By <?= r.author ?></p>
+                </div>
+
+                <div class="pt-3 border-t border-white/5 space-y-2">
+                  <div class="flex justify-between text-[9px] uppercase font-bold tracking-widest text-gray-500">
+                    <span><?= r.biasLabel ?></span>
+                  </div>
+                  <div class="text-[9px] text-gray-400 bg-black/20 px-2 py-1 rounded border border-white/5 truncate">
+                    <?= r.reliabilityLabel ?>
+                  </div>
+                </div>
+                
+                <div class="flex justify-between items-center text-[9px] font-mono text-gray-600">
+                  <span><?= r.student.split('@')[0] ?></span>
+                  <span><?= new Date(r.timestamp).toLocaleDateString() ?></span>
+                </div>
               </div>
-              <span class="material-symbols-outlined text-gray-600 group-hover:text-white">chevron_right</span>
             </div>
-          </div>
-        <? } ?>
+          <? } ?>
+        </div>
       <? } ?>
+    </div>
+  </div>
+</div>
+
+<!-- Detailed Info Modal -->
+<div id="reportModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 z-[110]">
+  <div class="bg-gray-900 border border-gray-700 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
+    <!-- Header -->
+    <div class="bg-gray-800/50 p-6 flex justify-between items-center border-b border-gray-700">
+      <div>
+        <h3 id="modalSourceName" class="text-2xl font-bold text-white">Source Name</h3>
+        <p class="text-blue-400 text-sm">By <span id="modalAuthor">Author</span></p>
+      </div>
+      <button onclick="closeReportModal()" class="text-gray-500 hover:text-white transition-colors">
+        <span class="material-symbols-outlined text-3xl">close</span>
+      </button>
+    </div>
+
+    <div class="p-8 space-y-6 overflow-y-auto max-h-[70vh]">
+      <!-- Stats Row -->
+      <div class="grid grid-cols-2 gap-6">
+        <div class="bg-blue-900/20 p-4 rounded-2xl border border-blue-500/30">
+          <div class="text-xs font-bold text-blue-400 uppercase mb-1">Verified Bias</div>
+          <div id="modalBias" class="text-3xl font-mono font-bold text-white leading-tight">0</div>
+          <div id="modalBiasLabel" class="text-[10px] text-blue-300 font-bold uppercase tracking-wider">Neutral</div>
+        </div>
+        <div class="bg-green-900/20 p-4 rounded-2xl border border-green-500/30">
+          <div class="text-xs font-bold text-green-400 uppercase mb-1">Verified Reliability</div>
+          <div id="modalReliability" class="text-3xl font-mono font-bold text-white leading-tight">0</div>
+          <div id="modalReliabilityLabel" class="text-[10px] text-green-300 font-bold uppercase tracking-wider">Reliable</div>
+        </div>
+      </div>
+
+      <!-- Image Section -->
+      <div id="modalImageContainer" class="hidden">
+        <div class="text-xs font-bold text-gray-500 uppercase mb-2 tracking-widest">Visual Evidence</div>
+        <img id="modalImage" src="" class="w-full rounded-2xl border border-gray-700 shadow-lg">
+      </div>
+
+      <!-- Evidence -->
+      <div class="space-y-2">
+        <div class="text-xs font-bold text-gray-500 uppercase tracking-widest">Analysis Evidence</div>
+        <div id="modalEvidence" class="bg-black/30 p-6 rounded-2xl text-gray-300 italic leading-relaxed border-l-4 border-blue-500">
+          "..."
+        </div>
+      </div>
+
+      <!-- Meta Info -->
+      <div class="pt-6 border-t border-gray-800 flex flex-col md:flex-row justify-between gap-4 text-sm">
+        <div class="text-gray-500">
+          Reported by <span id="modalReporter" class="text-gray-300 font-bold">Reporter Email</span> on <span id="modalTimestamp">Date</span>
+        </div>
+        <a id="modalUrl" href="#" target="_blank" class="text-blue-400 hover:text-blue-300 flex items-center gap-2 font-bold group">
+          OPEN ARTICLE <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">open_in_new</span>
+        </a>
+      </div>
     </div>
   </div>
 </div>

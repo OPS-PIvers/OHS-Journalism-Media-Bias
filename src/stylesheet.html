@@ -30,5 +30,106 @@
     border-left-color: var(--color-primary);
     animation: spin 1s linear infinite;
   }
+  /* Coordinate Plane Styles */
+  .coordinate-plane {
+    position: relative;
+    background: #0f172a; /* Slate 900 */
+    border: 1px solid #334155; /* Slate 700 */
+    cursor: crosshair;
+    overflow: hidden;
+  }
+  .coordinate-grid {
+    position: absolute;
+    inset: 0;
+    background-size: 25% 25%;
+    background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+  }
+  .axis-center-h { position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.2); }
+  .axis-center-v { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.2); }
+  
+  .plot-point {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    z-index: 30;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .point-student { background: #3b82f6; border: 2px solid white; }
+  .point-teacher { background: #a855f7; border: 2px solid white; }
+  
+  .axis-label {
+    position: absolute;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #64748b;
+    letter-spacing: 0.05em;
+    pointer-events: none;
+  }
+
+  /* Carousel Animation */
+  .carousel-container {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    padding: 1rem 0;
+  }
+  .carousel-track {
+    display: flex;
+    flex-direction: row;
+    width: max-content;
+    gap: 1.5rem;
+    padding: 0 0.75rem;
+  }
+  .carousel-track.animate {
+    animation: scroll-horizontal 40s linear infinite;
+  }
+  .carousel-track:hover {
+    animation-play-state: paused;
+  }
+  .carousel-card {
+    width: 280px;
+    flex-shrink: 0;
+    background: rgba(31, 41, 55, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    transition: all 0.3s ease;
+  }
+  .carousel-card:hover {
+    background: rgba(31, 41, 55, 0.8);
+    border-color: rgba(59, 130, 246, 0.5);
+    transform: translateY(-4px);
+  }
+
+  @keyframes scroll-horizontal {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+  /* Toast Animations */
+  .toast-enter {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+  .toast-enter-active {
+    transform: translateX(0);
+    opacity: 1;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+  }
+  .toast-exit {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  .toast-exit-active {
+    transform: translateX(120%);
+    opacity: 0;
+    transition: transform 0.3s ease-in, opacity 0.3s ease-in;
+  }
 </style>
