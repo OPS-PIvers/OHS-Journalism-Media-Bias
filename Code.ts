@@ -29,6 +29,7 @@ declare var HtmlService: {
 };
 
 declare var SpreadsheetApp: any;
+declare var Session: any;
 
 /**
  * Serves the HTML template for the web app.
@@ -40,6 +41,23 @@ function doGet(e: GoogleAppsScript.Events.DoGet): GoogleAppsScript.HTML.HtmlOutp
     .setTitle('The Weekly Scout')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1.0')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+// --- Auth Layer ---
+
+function getUserRole() {
+  // In a real environment, check the user's email against a database of teachers.
+  // For this template, we treat the script owner (developer) as the teacher.
+  // Users executing the script as themselves who are NOT the owner will be students.
+  const activeUser = Session.getActiveUser().getEmail();
+  const effectiveUser = Session.getEffectiveUser().getEmail();
+  
+  // If running in dev mode or user is the owner
+  if (activeUser === effectiveUser || activeUser === '') {
+    return 'teacher';
+  }
+  
+  return 'student';
 }
 
 // --- Persistence Layer ---

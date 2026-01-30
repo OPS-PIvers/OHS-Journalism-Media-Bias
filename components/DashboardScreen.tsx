@@ -3,7 +3,11 @@ import { Link } from 'react-router-dom';
 import NavSidebar from './NavSidebar';
 import { Report } from '../types';
 
-const DashboardScreen: React.FC = () => {
+interface DashboardScreenProps {
+    isTeacher?: boolean;
+}
+
+const DashboardScreen: React.FC<DashboardScreenProps> = ({ isTeacher = false }) => {
     const [reports, setReports] = useState<Report[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -44,7 +48,7 @@ const DashboardScreen: React.FC = () => {
 
     return (
         <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark text-[#111418] dark:text-white font-display">
-            <NavSidebar />
+            <NavSidebar role="student" canSwitchToTeacher={isTeacher} />
             <main className="flex-1 flex flex-col h-full overflow-hidden relative">
                 {/* Header Section */}
                 <header className="flex-none px-8 py-6 w-full max-w-7xl mx-auto">

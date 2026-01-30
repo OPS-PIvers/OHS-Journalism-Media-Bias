@@ -2,10 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import NavSidebar from './NavSidebar';
 
-const PortfolioScreen: React.FC = () => {
+interface PortfolioScreenProps {
+    isTeacher?: boolean;
+}
+
+const PortfolioScreen: React.FC<PortfolioScreenProps> = ({ isTeacher = false }) => {
     return (
         <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark text-[#111418] dark:text-white font-display">
-            <NavSidebar />
+            <NavSidebar role="student" canSwitchToTeacher={isTeacher} />
             <main className="flex-1 h-full overflow-y-auto flex justify-center py-8 px-4 md:px-10 lg:px-20">
                 <div className="w-full max-w-[1200px] flex flex-col gap-8">
                     {/* Page Header & Stats */}

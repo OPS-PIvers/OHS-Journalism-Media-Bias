@@ -4,9 +4,10 @@ import { Role } from '../types';
 
 interface NavSidebarProps {
   role?: Role;
+  canSwitchToTeacher?: boolean;
 }
 
-const NavSidebar: React.FC<NavSidebarProps> = ({ role = 'student' }) => {
+const NavSidebar: React.FC<NavSidebarProps> = ({ role = 'student', canSwitchToTeacher = false }) => {
     const location = useLocation();
     const isActive = (path: string) => location.pathname === path;
 
@@ -64,7 +65,13 @@ const NavSidebar: React.FC<NavSidebarProps> = ({ role = 'student' }) => {
                 <NavLinkItem to="/" icon="dashboard" label="Mission Control" fillIcon={true} />
                 <NavLinkItem to="/portfolio" icon="public" label="My Portfolio Map" />
                 <NavLinkItem to="/submission" icon="post_add" label="Submit Report" />
-                <NavLinkItem to="/teacher" icon="school" label="Teacher View" />
+                
+                {/* Only visible to teachers who are in student view */}
+                {canSwitchToTeacher && (
+                    <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+                        <NavLinkItem to="/teacher" icon="school" label="Switch to Teacher" />
+                    </div>
+                )}
                 
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800">
                     <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">System</p>

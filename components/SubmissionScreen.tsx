@@ -1,7 +1,11 @@
 import React, { useState, useRef } from 'react';
 import NavSidebar from './NavSidebar';
 
-const SubmissionScreen: React.FC = () => {
+interface SubmissionScreenProps {
+    isTeacher?: boolean;
+}
+
+const SubmissionScreen: React.FC<SubmissionScreenProps> = ({ isTeacher = false }) => {
     const [wordCount, setWordCount] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     
@@ -90,7 +94,7 @@ const SubmissionScreen: React.FC = () => {
 
     return (
         <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased">
-            <NavSidebar />
+            <NavSidebar role="student" canSwitchToTeacher={isTeacher} />
             <main className="flex-1 h-full overflow-y-auto w-full">
                 <div className="max-w-[1280px] mx-auto p-4 lg:p-8 flex flex-col lg:flex-row gap-8">
                     {/* Left Column: Mission Data */}

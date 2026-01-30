@@ -35,6 +35,7 @@ declare global {
           };
           submitReport: (data: any) => void;
           getRecentReports: () => void;
+          getUserRole: () => void;
         };
       };
     };
