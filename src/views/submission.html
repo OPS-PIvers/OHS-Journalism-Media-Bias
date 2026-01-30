@@ -1,0 +1,71 @@
+<!-- Submission View -->
+<div class="max-w-2xl mx-auto">
+  <header class="mb-8">
+    <h2 class="text-3xl font-bold text-white mb-2">New Intelligence Report</h2>
+    <p class="text-gray-400">Analyze source credibility and bias vectors.</p>
+  </header>
+
+  <form id="submissionForm" onsubmit="submitSubmissionForm(event)" class="space-y-6">
+    
+    <!-- Source Info -->
+    <div class="glass-panel p-6 rounded-xl space-y-4">
+      <h3 class="text-lg font-bold border-b border-gray-700 pb-2 mb-4">Target Source</h3>
+      
+      <div>
+        <label class="block text-sm text-gray-400 mb-1">Article URL</label>
+        <input type="url" id="url" required class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:border-blue-500 focus:outline-none" placeholder="https://...">
+      </div>
+      
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">Source Name</label>
+          <input type="text" id="sourceName" required class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:border-blue-500 focus:outline-none" placeholder="e.g. CNN, Fox">
+        </div>
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">Author</label>
+          <input type="text" id="author" required class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:border-blue-500 focus:outline-none" placeholder="Journalist Name">
+        </div>
+      </div>
+    </div>
+
+    <!-- Analysis -->
+    <div class="glass-panel p-6 rounded-xl space-y-6">
+      <h3 class="text-lg font-bold border-b border-gray-700 pb-2 mb-4">Vector Analysis</h3>
+      
+      <div>
+        <label class="block text-sm text-gray-400 mb-2 flex justify-between">
+          <span>Bias Spectrum (Left <-> Right)</span>
+          <span id="biasVal" class="text-blue-400 font-mono">0</span>
+        </label>
+        <input type="range" id="bias" min="-42" max="42" value="0" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500" oninput="document.getElementById('biasVal').innerText = this.value">
+        <div class="flex justify-between text-xs text-gray-600 mt-1">
+          <span>Extreme Left</span>
+          <span>Center</span>
+          <span>Extreme Right</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-400 mb-2 flex justify-between">
+          <span>Reliability Score</span>
+          <span id="relVal" class="text-green-400 font-mono">50</span>
+        </label>
+        <input type="range" id="reliability" min="0" max="64" value="32" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500" oninput="document.getElementById('relVal').innerText = this.value">
+        <div class="flex justify-between text-xs text-gray-600 mt-1">
+          <span>Fabricated</span>
+          <span>Factual</span>
+        </div>
+      </div>
+      
+      <div>
+        <label class="block text-sm text-gray-400 mb-1">Evidence / Notes</label>
+        <textarea id="evidence" rows="4" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:border-blue-500 focus:outline-none" placeholder="Cite specific language or rhetorical devices used..."></textarea>
+      </div>
+    </div>
+
+    <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-900/20 transition-all transform active:scale-95">
+      TRANSMIT REPORT
+    </button>
+
+  </form>
+</div>

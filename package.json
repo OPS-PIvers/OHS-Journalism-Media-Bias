@@ -1,32 +1,11 @@
 {
   "name": "the-weekly-scout",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "version": "1.0.0",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build && npx tsc Code.ts --target ES2022 --module None --outDir dist --lib esnext,dom --types google-apps-script --esModuleInterop --skipLibCheck --jsx react-jsx && cp appsscript.json dist/appsscript.json && node clean-html.js",
-    "deploy": "npm run build && clasp push",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "react-router-dom": "^7.13.0"
+    "deploy": "clasp push"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.18",
-    "@tailwindcss/vite": "^4.1.18",
-    "@types/google-apps-script": "^2.0.8",
-    "@types/node": "^22.14.0",
-    "@vitejs/plugin-legacy": "^6.1.1",
-    "@vitejs/plugin-react": "^5.0.0",
-    "autoprefixer": "^10.4.23",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.18",
-    "terser": "^5.46.0",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.0",
-    "vite-plugin-singlefile": "^2.3.0"
+    "@types/google-apps-script": "^1.0.83"
   }
 }

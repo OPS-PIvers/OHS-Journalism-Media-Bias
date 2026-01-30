@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <?!= include('stylesheet'); ?>
+  </head>
+  <body class="h-screen flex flex-col md:flex-row overflow-hidden">
+  
+    <!-- Navigation Sidebar -->
+    <nav class="w-full md:w-64 bg-gray-900 border-r border-gray-800 flex flex-col">
+      <div class="p-6">
+        <h1 class="text-xl font-bold tracking-wider text-blue-400">THE WEEKLY SCOUT</h1>
+        <div class="mt-2 text-xs font-mono text-gray-500">OP: <?!= userRole.toUpperCase() ?></div>
+      </div>
+      
+      <div class="flex-1 px-4 space-y-2">
+        <button onclick="navigateTo('dashboard')" class="w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors <? if(activePage == 'dashboard') { ?> bg-blue-600/20 text-blue-400 <? } else { ?> text-gray-400 hover:bg-gray-800 <? } ?>">
+          <span class="material-symbols-outlined">dashboard</span>
+          Dashboard
+        </button>
+        
+        <button onclick="navigateTo('submission')" class="w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors <? if(activePage == 'submission') { ?> bg-blue-600/20 text-blue-400 <? } else { ?> text-gray-400 hover:bg-gray-800 <? } ?>">
+          <span class="material-symbols-outlined">send</span>
+          New Report
+        </button>
+        
+        <? if (userRole === 'teacher') { ?>
+        <button onclick="navigateTo('teacher')" class="w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors <? if(activePage == 'teacher') { ?> bg-purple-600/20 text-purple-400 <? } else { ?> text-gray-400 hover:bg-gray-800 <? } ?>">
+          <span class="material-symbols-outlined">school</span>
+          Teacher Console
+        </button>
+        <? } ?>
+      </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto bg-gray-950 p-6 md:p-8 relative">
+      <!-- Dynamic View Loading -->
+      <? 
+        if (activePage === 'dashboard') { 
+          // We can call server-side functions here to get data before rendering
+          var reports = getRecentReports();
+      ?>
+        <?!= include('views/dashboard'); ?>
+      <? } else if (activePage === 'submission') { ?>
+        <?!= include('views/submission'); ?>
+      <? } else if (activePage === 'teacher') { ?>
+        <?!= include('views/teacher'); ?>
+      <? } else { ?>
+        <div class="text-center text-gray-500 mt-20">Page not found.</div>
+      <? } ?>
+    </main>
+
+    <?!= include('javascript'); ?>
+  </body>
+</html>

@@ -1,0 +1,52 @@
+<script>
+  // Global client-side navigation and logic
+  
+  function navigateTo(page) {
+    var url = getScriptUrl() + "?page=" + page;
+    window.top.location.href = url;
+  }
+  
+  function getScriptUrl() {
+    var url = document.createElement('a');
+    url.href = window.location.href;
+    return url.href.split('?')[0];
+  }
+
+  // --- Form Handling ---
+  
+  function submitSubmissionForm(e) {
+    e.preventDefault();
+    var btn = document.getElementById('submitBtn');
+    var originalText = btn.innerText;
+    btn.disabled = true;
+    btn.innerText = "Transmitting...";
+    
+    var formData = {
+      url: document.getElementById('url').value,
+      sourceName: document.getElementById('sourceName').value,
+      author: document.getElementById('author').value,
+      bias: document.getElementById('bias').value,
+      reliability: document.getElementById('reliability').value,
+      evidence: document.getElementById('evidence').value,
+      wordCount: document.getElementById('evidence').value.split(/\s+/).length
+    };
+    
+    google.script.run
+      .withSuccessHandler(function(response) {
+        btn.disabled = false;
+        btn.innerText = originalText;
+        if (response.success) {
+          alert("Success! XP Earned: " + response.xpEarned);
+          navigateTo('dashboard');
+        } else {
+          alert("Error: " + response.message);
+        }
+      })
+      .withFailureHandler(function(err) {
+        btn.disabled = false;
+        btn.innerText = originalText;
+        alert("System Failure: " + err);
+      })
+      .submitReport(formData);
+  }
+</script>
