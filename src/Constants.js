@@ -8,7 +8,8 @@ var ROLE_TEACHER = 'teacher';
 var ROLE_STUDENT = 'student';
 
 // XP System - Scaled for 125-point Ranking System
-var XP_BASE = 3;
+var XP_BASE = 10;
+var XP_BONUS_EXTREME = 10;
 var XP_BONUS_ACCURACY = 2; // Awarded by teacher during approval
 var XP_BONUS_DETAIL = 2;   // Awarded for evidence over 100 words
 

@@ -177,7 +177,7 @@
           btn.innerText = originalText;
           hideLoading(); // Release the loader before showing the toast
           if (response.success) {
-            showToast("Analysis Logged. Pending Verification.", 'success');
+            showToast(response.message || "Analysis Logged.", 'success');
             setTimeout(() => navigateTo('dashboard'), 1500);
           } else {
             showToast("Transmission Error: " + response.message, 'error');
