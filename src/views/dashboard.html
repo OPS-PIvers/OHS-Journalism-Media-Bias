@@ -18,17 +18,23 @@
     </div>
 
     <!-- The Chart -->
-    <div class="relative w-full aspect-square md:aspect-video bg-gray-900/50 rounded-xl border border-gray-800 overflow-hidden">
-      <!-- Axis Labels -->
-      <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
-        <div class="w-px h-full bg-gray-500"></div>
-        <div class="h-px w-full bg-gray-500"></div>
-      </div>
+    <div class="coordinate-plane w-full aspect-square md:aspect-video rounded-xl overflow-hidden relative">
+      <div class="coordinate-grid"></div>
+      <div class="axis-center-h"></div>
+      <div class="axis-center-v"></div>
       
-      <div class="absolute top-4 left-1/2 -translate-x-1/2 text-[10px] text-gray-600 font-bold uppercase tracking-tighter">Factual / Reliable</div>
-      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-[10px] text-gray-600 font-bold uppercase tracking-tighter">Fabricated / Low Quality</div>
-      <div class="absolute left-4 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] text-gray-600 font-bold uppercase tracking-tighter">Extreme Left</div>
-      <div class="absolute right-4 top-1/2 -translate-y-1/2 rotate-90 text-[10px] text-gray-600 font-bold uppercase tracking-tighter">Extreme Right</div>
+      <!-- Axis Labels -->
+      <div class="axis-label top-4 left-1/2 -translate-x-1/2">Factual / Reliable</div>
+      <div class="axis-label bottom-4 left-1/2 -translate-x-1/2">Fabricated / Low Quality</div>
+      <div class="axis-label left-4 top-1/2 -translate-y-1/2 -rotate-90">Extreme Left</div>
+      <div class="axis-label right-4 top-1/2 -translate-y-1/2 rotate-90">Extreme Right</div>
+
+      <!-- Scale Numbers -->
+      <div class="axis-scale top-0 left-1/2 -translate-x-1/2 pt-1">64</div>
+      <div class="axis-scale bottom-0 left-1/2 -translate-x-1/2 pb-1">0</div>
+      <div class="axis-scale left-0 top-1/2 -translate-y-1/2 pl-1">-42</div>
+      <div class="axis-scale right-0 top-1/2 -translate-y-1/2 pr-1">42</div>
+      <div class="axis-scale top-1/2 left-1/2 translate-x-1 translate-y-1">32</div>
 
       <!-- Data Points (Images) -->
       <div id="chartPoints" class="absolute inset-0">
